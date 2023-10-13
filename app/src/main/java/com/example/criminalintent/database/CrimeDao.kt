@@ -15,7 +15,4 @@ interface CrimeDao {
 
     @Query("SELECT * FROM crime WHERE id=(:id)")
     fun getCrime(id: UUID): LiveData<Crime?>
-
-    @Insert
-    fun addCrime(crime: Crime)
 }

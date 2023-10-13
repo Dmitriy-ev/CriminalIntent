@@ -31,10 +31,9 @@ class CrimeFragment : Fragment() {
         dateButton = view.findViewById(R.id.crime_date)
         checkBox = view.findViewById((R.id.crime_solved))
         dateButton.apply {
-            text = crime.data.toString()
+            text = crime.date.toString()
             isEnabled = false
         }
-
         return view
     }
 
