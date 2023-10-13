@@ -33,24 +33,13 @@ class CrimeListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view)
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
-        crimeRecyclerView.adapter = adapter
+        updateUi()
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        crimeListViewModel.crimeListLiveData.observe(
-            viewLifecycleOwner,
-            Observer { crimes ->
-                crimes?.let {
-                    Log.i(TAG, "Got crimes ${crimes.size}")
-                    updateUi(crimes)
-                }
-            }
-        )
-    }
 
-    private fun updateUi(crimes: List<Crime>) {
+    private fun updateUi() {
+        val crimes = crimeListViewModel.crimeList
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
     }
@@ -113,33 +102,31 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    private inner class CrimeAdapter(private var crimes: List<Crime>) : RecyclerView.Adapter<CrimeViewHolder>() {
+    private inner class CrimeAdapter(private var crimes: List<Crime>) : RecyclerView.Adapter<BaseViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            return CrimeViewHolder(inflater.inflate(R.layout.list_item_crime, parent, false))
-
-//            when (viewType) {
-//                1 -> CrimeViewHolder(inflater.inflate(R.layout.list_item_crime, parent, false))
-//                else -> SeriousCrimeViewHolder(inflater.inflate(R.layout.list_item_crime_police, parent, false))
-//            }
+             CrimeViewHolder(inflater.inflate(R.layout.list_item_crime, parent, false))
+            return when (viewType) {
+                1 -> CrimeViewHolder(inflater.inflate(R.layout.list_item_crime, parent, false))
+                else -> SeriousCrimeViewHolder(inflater.inflate(R.layout.list_item_crime_police, parent, false))
+            }
         }
 
         override fun getItemCount(): Int = crimes.size
 
-        override fun onBindViewHolder(holder: CrimeViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
             val crime = crimes[position]
             holder.bind(crime)
         }
-
-//        override fun getItemViewType(position: Int): Int {
-//            val crime = crimes[position]
-//            return if (crime.requiresPolice) {
-//                1
-//            } else {
-//                0
-//            }
-//        }
+        override fun getItemViewType(position: Int): Int {
+            val crime = crimes[position]
+            return if (crime.requiresPolice) {
+                1
+            } else {
+                0
+            }
+        }
     }
 
     private fun Date.formatDate(): String{
