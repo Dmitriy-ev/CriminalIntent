@@ -1,5 +1,6 @@
 package com.example.criminalintent
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,10 +18,17 @@ import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 private const val TAG = "CrimeListFragment"
 
 class CrimeListFragment : Fragment() {
+
+    interface Callbacks {
+        fun onCrimeSelected(crimeId: UUID)
+    }
+
+    private var callbacks: Callbacks? = null
 
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
@@ -50,6 +58,16 @@ class CrimeListFragment : Fragment() {
         )
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
     private fun updateUi(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
@@ -75,15 +93,15 @@ class CrimeListFragment : Fragment() {
             this.crime = crime
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.formatDate()
-            solvedImageView.visibility = if(crime.isSolved){
+            solvedImageView.visibility = if (crime.isSolved) {
                 View.VISIBLE
-            }else{
+            } else {
                 View.GONE
             }
         }
 
         override fun onClick(p0: View?) {
-            Toast.makeText(context, "${crime.title} clicked!", Toast.LENGTH_SHORT).show()
+            callbacks?.onCrimeSelected(crime.id)
         }
     }
 
@@ -102,7 +120,7 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    private fun Date.formatDate(): String{
+    private fun Date.formatDate(): String {
         val locale = Locale("en", "EN")
         val dateFormat = SimpleDateFormat("EEEE yyyy-MM-dd", locale)
         return dateFormat.format(this)
