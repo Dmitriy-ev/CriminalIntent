@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -31,7 +32,7 @@ class CrimeListFragment : Fragment() {
     private var callbacks: Callbacks? = null
 
     private lateinit var crimeRecyclerView: RecyclerView
-    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+    private var adapter: CrimeAdapter = CrimeAdapter()
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
@@ -69,7 +70,7 @@ class CrimeListFragment : Fragment() {
     }
 
     private fun updateUi(crimes: List<Crime>) {
-        adapter = CrimeAdapter(crimes)
+        adapter.setItems(crimes)
         crimeRecyclerView.adapter = adapter
     }
 
@@ -105,17 +106,29 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    private inner class CrimeAdapter(var crimes: List<Crime>) : RecyclerView.Adapter<CrimeViewHolder>() {
+    private inner class CrimeAdapter : RecyclerView.Adapter<CrimeViewHolder>() {
+
+        private var items: List<Crime> = ArrayList()
+
+        fun setItems(newItems: List<Crime>) {
+            val diffUtilCallback = CrimeDiffUtil(items, newItems,)
+            items = ArrayList(newItems)
+            DiffUtil.calculateDiff(diffUtilCallback, false).dispatchUpdatesTo(this)
+        }
+
+        fun updateCrimes(items: List<Crime>){
+            this.items = items
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_crime, parent, false)
             return CrimeViewHolder(view)
         }
 
-        override fun getItemCount(): Int = crimes.size
+        override fun getItemCount(): Int = items.size
 
         override fun onBindViewHolder(holder: CrimeViewHolder, position: Int) {
-            val crime = crimes[position]
+            val crime = items[position]
             holder.bind(crime)
         }
     }
