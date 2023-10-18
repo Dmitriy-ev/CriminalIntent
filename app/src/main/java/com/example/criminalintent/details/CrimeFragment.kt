@@ -1,9 +1,10 @@
-package com.example.criminalintent
+package com.example.criminalintent.details
 
+import android.content.Context
+import android.nfc.Tag
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +14,16 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.criminalintent.model.Crime
+import com.example.criminalintent.R
+import com.example.criminalintent.datapicker.DataPickerFragment
+import java.util.Date
 import java.util.UUID
-import kotlin.math.log
 
 private const val ARG_CRIME_ID = "crime_id"
-
-class CrimeFragment : Fragment() {
+private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
+class CrimeFragment : Fragment(), DataPickerFragment.Callbacks {
 
     private lateinit var crime: Crime
     private lateinit var titleField: EditText
@@ -43,10 +48,6 @@ class CrimeFragment : Fragment() {
         titleField = view.findViewById(R.id.crime_title)
         dateButton = view.findViewById(R.id.crime_date)
         checkBox = view.findViewById((R.id.crime_solved))
-        dateButton.apply {
-            text = crime.date.toString()
-            isEnabled = false
-        }
         return view
     }
 
@@ -89,6 +90,15 @@ class CrimeFragment : Fragment() {
                 crime.isSolved = isChecked
             }
         }
+
+        dateButton.setOnClickListener {
+            val dataPicker = DataPickerFragment.newInstance(crime.date)
+            parentFragmentManager.let {
+                    fragmentManager ->
+                dataPicker.setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                dataPicker.show(fragmentManager, DIALOG_DATE)
+            }
+        }
     }
 
     override fun onStop() {
@@ -105,5 +115,10 @@ class CrimeFragment : Fragment() {
                 arguments = args
             }
         }
+    }
+
+    override fun onDataSet(date: Date) {
+        crime.date = date
+        updateUi()
     }
 }

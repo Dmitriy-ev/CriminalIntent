@@ -1,6 +1,7 @@
-package com.example.criminalintent
+package com.example.criminalintent.crimelist
 
 import androidx.recyclerview.widget.DiffUtil
+import com.example.criminalintent.model.Crime
 
 class CrimeDiffUtil(val oldList: List<Crime>, val newList: List<Crime>) : DiffUtil.Callback() {
     override fun getOldListSize(): Int {
@@ -18,6 +19,6 @@ class CrimeDiffUtil(val oldList: List<Crime>, val newList: List<Crime>) : DiffUt
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         val old = oldList[oldItemPosition]
         val new = newList[newItemPosition]
-        return old == new // так как дата класс то вызов == это equals, и идет сравнение по всем полям.
+        return old == new
     }
 }

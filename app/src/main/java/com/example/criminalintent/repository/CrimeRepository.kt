@@ -1,16 +1,16 @@
-package com.example.criminalintent
+package com.example.criminalintent.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.example.criminalintent.database.CrimeDao
 import com.example.criminalintent.database.CrimeDatabase
+import com.example.criminalintent.model.Crime
 import java.lang.IllegalStateException
 import java.util.UUID
 import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "crime-database"
-
 class CrimeRepository private constructor(context: Context) {
 
     private val database: CrimeDatabase = Room.databaseBuilder(

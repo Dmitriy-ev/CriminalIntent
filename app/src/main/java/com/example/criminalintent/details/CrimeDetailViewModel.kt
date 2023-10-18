@@ -1,9 +1,11 @@
-package com.example.criminalintent
+package com.example.criminalintent.details
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
+import com.example.criminalintent.model.Crime
+import com.example.criminalintent.repository.CrimeRepository
 import java.util.UUID
 
 class CrimeDetailViewModel() : ViewModel() {

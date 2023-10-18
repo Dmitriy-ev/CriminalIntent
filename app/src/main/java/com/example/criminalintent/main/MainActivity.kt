@@ -1,12 +1,11 @@
-package com.example.criminalintent
+package com.example.criminalintent.main
 
-import android.nfc.Tag
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import com.example.criminalintent.R
+import com.example.criminalintent.crimelist.CrimeListFragment
+import com.example.criminalintent.details.CrimeFragment
 import java.util.UUID
-
-private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
     override fun onCreate(savedInstanceState: Bundle?) {
