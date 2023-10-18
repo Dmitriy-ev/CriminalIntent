@@ -15,10 +15,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.criminalintent.R
+import com.example.criminalintent.helpers.formatDate
 import com.example.criminalintent.model.Crime
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.UUID
 
 private const val TAG = "CrimeListFragment"
@@ -130,11 +128,5 @@ class CrimeListFragment : Fragment() {
             val crime = items[position]
             holder.bind(crime)
         }
-    }
-
-    private fun Date.formatDate(): String {
-        val locale = Locale("en", "EN")
-        val dateFormat = SimpleDateFormat("EEEE yyyy-MM-dd", locale)
-        return dateFormat.format(this)
     }
 }

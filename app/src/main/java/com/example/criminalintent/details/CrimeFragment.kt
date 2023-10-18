@@ -16,7 +16,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.criminalintent.model.Crime
 import com.example.criminalintent.R
-import com.example.criminalintent.datapicker.DataPickerFragment
+import com.example.criminalintent.dialog.DataPickerFragment
+import com.example.criminalintent.helpers.formatDate
 import java.util.Date
 import java.util.UUID
 
@@ -47,7 +48,7 @@ class CrimeFragment : Fragment(), DataPickerFragment.Callbacks {
 
         titleField = view.findViewById(R.id.crime_title)
         dateButton = view.findViewById(R.id.crime_date)
-        checkBox = view.findViewById((R.id.crime_solved))
+        checkBox = view.findViewById(R.id.crime_solved)
         return view
     }
 
@@ -66,7 +67,7 @@ class CrimeFragment : Fragment(), DataPickerFragment.Callbacks {
 
     private fun updateUi() {
         titleField.setText(crime.title)
-        dateButton.text = crime.date.toString()
+        dateButton.text = crime.date.formatDate()
         checkBox.isChecked = crime.isSolved
     }
 
