@@ -28,6 +28,7 @@ import com.example.criminalintent.model.Crime
 import com.example.criminalintent.R
 import com.example.criminalintent.dialog.DataPickerFragment
 import com.example.criminalintent.helpers.formatDate
+import com.example.criminalintent.helpers.getScaledBitmap
 import java.io.File
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -200,6 +201,18 @@ class CrimeFragment : Fragment() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == 2){
+            requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            updatePhotoView()
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    }
+
     override fun onStop() {
         super.onStop()
         crimeDetailViewModel.saveCrime(crime)
@@ -212,12 +225,22 @@ class CrimeFragment : Fragment() {
         if (crime.suspect.isNotEmpty()) {
             suspectButton.text = crime.suspect
         }
+        updatePhotoView()
     }
 
     private fun onDataSet(datePicker: String) {
         val date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         crime.date = date.parse(datePicker)!!
         updateUi()
+    }
+
+    private fun updatePhotoView(){
+        if(photoFile.exists()){
+            val bitmap = getScaledBitmap(photoFile.path, requireActivity())
+            photoView.setImageBitmap(bitmap)
+        }else{
+            photoView.setImageDrawable(null)
+        }
     }
 
     private fun getCrimeReport(): String {
