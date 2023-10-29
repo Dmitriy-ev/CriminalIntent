@@ -4,11 +4,18 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
@@ -30,6 +37,8 @@ class CrimeListFragment : Fragment() {
 
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter = CrimeAdapter()
+    private lateinit var emptyView: TextView
+    private lateinit var addButton: Button
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
@@ -37,6 +46,8 @@ class CrimeListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
+        emptyView = view.findViewById(R.id.empty_text)
+        addButton = view.findViewById(R.id.add_button)
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view)
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         crimeRecyclerView.adapter = adapter
@@ -48,12 +59,47 @@ class CrimeListFragment : Fragment() {
         crimeListViewModel.crimeListLiveData.observe(
             viewLifecycleOwner,
             Observer { crimes ->
-                crimes?.let {
-                    Log.i(TAG, "Got crimes ${crimes.size}")
-                    updateUi(crimes)
+                if(crimes.isEmpty()){
+                    emptyView.visibility = View.VISIBLE
+                    addButton.visibility = View.VISIBLE
+                    crimeRecyclerView.visibility = View.GONE
+                }else{
+                    emptyView.visibility = View.GONE
+                    addButton.visibility = View.GONE
+                    crimeRecyclerView.visibility = View.VISIBLE
+                    crimes?.let {
+                        Log.i(TAG, "Got crimes ${crimes.size}")
+                        updateUi(crimes)
+                    }
                 }
             }
         )
+
+        val menuHost: MenuHost = requireActivity()
+
+        menuHost.addMenuProvider(object : MenuProvider{
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_crime_list, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when(menuItem.itemId){
+                    R.id.new_crime -> {
+                        val crime = Crime()
+                        crimeListViewModel.crimeAdd(crime)
+                        callbacks?.onCrimeSelected(crime.id)
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        addButton.setOnClickListener {
+            val crime = Crime()
+            crimeListViewModel.crimeAdd(crime)
+            callbacks?.onCrimeSelected(crime.id)
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -111,10 +157,6 @@ class CrimeListFragment : Fragment() {
             val diffUtilCallback = CrimeDiffUtil(items, newItems,)
             items = ArrayList(newItems)
             DiffUtil.calculateDiff(diffUtilCallback, false).dispatchUpdatesTo(this)
-        }
-
-        fun updateCrimes(items: List<Crime>){
-            this.items = items
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeViewHolder {

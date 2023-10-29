@@ -6,47 +6,35 @@ import android.icu.util.Calendar
 import android.os.Bundle
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
-import java.util.Date
-import java.util.GregorianCalendar
+import androidx.fragment.app.setFragmentResult
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-private const val ARG_DATE = "date"
+class DataPickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener {
 
-class DataPickerFragment : DialogFragment() {
-
-    companion object {
-        fun newInstance(date: Date): DataPickerFragment {
-            val arg = Bundle().apply {
-                putSerializable(ARG_DATE, date)
-            }
-            return DataPickerFragment().apply {
-                arguments = arg
-            }
-        }
-    }
+    private val calendar = Calendar.getInstance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val dateListener = DatePickerDialog.OnDateSetListener {
-                    _: DatePicker, year: Int, month: Int, day: Int ->
-                val resultDate : Date = GregorianCalendar(year, month, day).time
-                targetFragment?.let { fragment ->
-                    (fragment  as Callbacks).onDataSet(resultDate)
-                } }
-        val date = arguments?.getSerializable(ARG_DATE) as Date
-        val calendar = Calendar.getInstance()
-        calendar.time = date
         val initialYear = calendar.get(Calendar.YEAR)
         val initialMonth = calendar.get(Calendar.MONTH)
         val initialDay = calendar.get(Calendar.DAY_OF_MONTH)
         return DatePickerDialog(
             requireContext(),
-            dateListener,
+            this,
             initialYear,
             initialMonth,
             initialDay
         )
     }
+    override fun onDateSet(p0: DatePicker?, p1: Int, p2: Int, p3: Int) {
+        calendar.set(Calendar.YEAR, p1)
+        calendar.set(Calendar.MONTH, p2)
+        calendar.set(Calendar.DAY_OF_MONTH, p3)
 
-    interface Callbacks {
-        fun onDataSet(date: Date)
+        val selectDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time)
+
+        val selectedDateBundle = Bundle()
+        selectedDateBundle.putString("SELECTED_DATE", selectDate)
+        setFragmentResult("REQUEST_KEY", selectedDateBundle)
     }
 }
